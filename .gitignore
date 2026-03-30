@@ -1,6 +1,9 @@
 # Secrets — mai committare
 .streamlit/secrets.toml
 
+# Claude Code
+CLAUDE.md
+
 # Virtual environment
 .venv/
 venv/
