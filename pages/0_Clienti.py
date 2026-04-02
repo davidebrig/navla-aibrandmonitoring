@@ -23,6 +23,7 @@ from utils import (
     require_login,
     run_query,
     update_customer,
+    update_project,
     upsert_project_brands,
 )
 
@@ -234,7 +235,7 @@ else:
 
     if is_admin:
         st.divider()
-        col_new, col_del_proj = st.columns([2, 3])
+        col_new, col_edit_proj, col_del_proj = st.columns([2, 3, 3])
 
         with col_new:
             if st.button("➕ Crea nuovo progetto", type="primary", use_container_width=True):
@@ -243,6 +244,31 @@ else:
                     if k.startswith("wiz1_"):
                         del st.session_state[k]
                 st.switch_page("pages/1_Progetti.py")
+
+        with col_edit_proj:
+            with st.expander("✏️ Rinomina progetto"):
+                proj_opts_edit = {str(r["name"]): str(r["id"])
+                                  for _, r in projects_df.iterrows()}
+                proj_to_edit = st.selectbox("Progetto", list(proj_opts_edit.keys()),
+                                            key="edit_proj_select")
+                proj_edit_id = proj_opts_edit[proj_to_edit]
+                proj_edit_row = projects_df[projects_df["id"].astype(str) == proj_edit_id].iloc[0]
+
+                with st.form(f"rename_proj_form_{proj_edit_id}"):
+                    new_name = st.text_input("Nuovo nome", value=proj_edit_row["name"])
+                    new_lang = st.text_input("Lingua", value=proj_edit_row["language"])
+                    new_country = st.text_input("Paese", value=proj_edit_row["country"])
+                    save_rename = st.form_submit_button("Salva", type="primary")
+
+                if save_rename:
+                    if not new_name.strip():
+                        st.error("Il nome non può essere vuoto.")
+                    else:
+                        update_project(proj_edit_id, new_name.strip(), new_lang.strip(), new_country.strip())
+                        fetch_projects.clear()
+                        st.cache_data.clear()
+                        st.success(f"Progetto rinominato in **{new_name.strip()}**.")
+                        st.rerun()
 
         with col_del_proj:
             with st.expander("🗑 Elimina progetto"):
