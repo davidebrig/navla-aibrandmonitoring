@@ -593,4 +593,4 @@ elif step == 5:
     with c2:
         if st.button("Vai a Domande e Keyword →", type="primary"):
             _reset()
-            st.switch_page("pages/2_Domande_e_Keyword.py")
+            st.switch_page("pages/3_Domande_e_Keyword.py")
